@@ -7,7 +7,7 @@ const dateMapping = {};
 
 // TODO: Make this an environment variable
 // const BASE_FOLDER = 'D:/Rishabh/ts_internal/Shared Folder';
-const BASE_FOLDER = 'Z:';
+const BASE_FOLDER = 'C:/Users/Tooth Sketch/Desktop/Local test';
 // const BASE_FOLDER = '/Users/rishabhmarya/BambooShoots/ts_downloading_test';
 
 function ensureFolderExists(
