@@ -16,5 +16,4 @@ downloader_logs
 
 # lakshay changes
 **/token.json
-**/credentials.json 
-/start.txt
+**/credentials.json

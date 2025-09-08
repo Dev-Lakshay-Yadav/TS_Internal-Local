@@ -1,0 +1,14 @@
+start commands
+
+@echo off
+cd Rishabh\git\TS_Internal
+npm run start
+
+
+
+Basically run the downloader_logs and this :x work with goto to make an infinite run loop with 300 sec or 5 min timeout
+cd Rishabh\git\TS_Internal
+:x
+node box_api_index.js >> downloader_logs
+timeout 300/nobreak
+goto x
