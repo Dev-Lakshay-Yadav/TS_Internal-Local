@@ -1,0 +1,42 @@
+extends layout
+
+block content
+  script.
+    function groupByLongestPrefix(strings) {
+      // Sort the strings in ascending order by length
+      strings.sort((a, b) => a.length - b.length);
+
+      // Create an empty array to store the groups
+      var groups = [];
+
+      // Loop through the strings and try to find a group for each string
+      for (var i = 0; i < strings.length; i++) {
+        var str = strings[i];
+
+        // Flag to track if the string has been added to a group
+        var added = false;
+
+        // Loop through the existing groups and try to find a group for the string
+        for (var j = 0; j < groups.length; j++) {
+          var group = groups[j];
+
+          // If the string has the same prefix as the first string in the group,
+          // add the string to the group and set the added flag to true
+          if (str.startsWith(group[0])) {
+            group.push(str);
+            added = true;
+            break;
+          }
+        }
+
+        // If the string was not added to a group, create a new group for it
+        if (!added) {
+          groups.push([str]);
+        }
+      }
+
+      // Return the array of groups
+      return groups;
+    }
+
+  span #{error}

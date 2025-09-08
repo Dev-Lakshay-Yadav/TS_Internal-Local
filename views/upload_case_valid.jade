@@ -1,0 +1,96 @@
+extends layout
+
+block content
+  //- div #{JSON.stringify(localData)}
+  //- div #{JSON.stringify(remoteData)}
+  h1 #{caseID}
+  div(style="display: flex;")
+    div(style="padding-right: 30px; border-right: 2px solid black; margin-right: 30px;")
+      h2 Local case files
+      table
+        each subFolderName in Object.keys(localData)
+          tr
+            td(style="padding-right: 10px; border-right: 1px solid #999; border-bottom: 1px solid #999; margin-right: 10px;")
+              //- input(type="checkbox")
+              | #{subFolderName}
+            td(style="padding-left: 10px; border-bottom: 1px solid #999;")
+              li #{subFolderName}
+                div Previews
+                ul
+                  each fileData in localData[subFolderName]['TS_PREVIEW']
+                    li #{fileData['file_name']}
+                div Downloads
+                ul
+                  each fileData in localData[subFolderName]['TS_DOWNLOAD']
+                    li #{fileData['file_name']}
+    div(style="padding-right: 30px; border-right: 2px solid black; margin-right: 30px;")
+      h2 ToothSketch.com synced case files
+      each subFolderName in Object.keys(remoteData)
+        li #{subFolderName}
+          div Previews
+          ul
+            each fileData in remoteData[subFolderName]['TS_PREVIEW']
+              li #{fileData['file_name']}
+          div Downloads
+          ul
+            each fileData in remoteData[subFolderName]['TS_DOWNLOAD']
+              li #{fileData['file_name']}
+    div#upload-messages 
+      h2 Upload messages will appear here
+      script.
+        const windowCaseID = '!{caseID}';
+        window.mySocket.on('upload_message', data => {
+          if (windowCaseID != data.caseID) {
+            return;
+          }
+          console.log(data);
+          $('#upload-messages').append('<p>'+data.message+'</p>');
+          if (data.action == 'reload') {
+            location.reload();
+          }
+        });
+  div
+    button(id="upload_files") Upload Files
+    script.
+      const localData = JSON.parse('!{JSON.stringify(localData)}');
+      const remoteData = JSON.parse('!{JSON.stringify(remoteData)}');
+      const caseID = '!{caseID}';
+      const dateString = '!{dateString}';
+      const caseFilePath = '!{caseFilePath}';
+
+      console.log(localData, remoteData, caseID);
+      console.log({
+            sub_case_names: Object.keys(localData),
+            case_id: caseID.split(' ')[0]
+          });
+
+      $('#upload_files').on('click', function () {
+        $('#upload-messages').append('<p>Starting file upload, creating box folders</p>');
+        $.ajax({
+          // 'http://www.prf.nll.mybluehost.me/wp-json/my-route/make-box-ts-uploads-folders',
+          url: 'https://www.toothsketch.com/wp-json/my-route/make-box-ts-uploads-folders/',
+          type: 'POST',
+          data: {
+            sub_case_names: Object.keys(localData).join(','),
+            case_id: caseID.split(' ')[0]
+            //- test: "test"
+          },
+          dataType: 'json',
+          success: (data) => {
+            console.log(['success creating the folders in box, now going to upload the files', data]);
+            $('#upload-messages').append('<p>Box folders created, uploading files</p>');
+            $.post(
+              '/upload-case-files',
+              {
+                dateString,
+                caseID,
+                subFolderIds: JSON.stringify(data.sub_folder_ids),
+                caseFilePath,
+              },
+              (data) => {
+                console.log(['Success uploading files to box', data]);
+              }
+            )
+          }
+        });
+      })

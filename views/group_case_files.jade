@@ -1,0 +1,185 @@
+extends layout
+
+block content
+  style.
+    .not-assigned {
+      opacity: 0.5;
+    }
+
+  div(style="display: flex;")
+    div(style="margin-right: 40px; border-right: 2px solid #aaa; padding-right: 40px;")
+      div(style="margin-bottom: 20px;")
+        button.disabled(id='assign-groups', style="font-size: 20px; padding: 10px 20px;") Assign Groups
+      div(style="margin-bottom: 20px;")
+        input(type='text', id='group-name')
+      div(style="margin-bottom: 20px;")
+        select(id="case-id-select")
+          option(value="") Select a case
+          each folder in folderNames
+            option(value=folder) 
+              | #{folder}
+      div(style="margin-bottom: 20px;")
+        button.disabled(id='group-case-files', style="font-size: 30px; padding: 10px 20px;") SUBMIT
+      div(style="margin-top: 20px;")
+        each folder in folderNames
+          div
+            a(href="/upload_case/?lab="+labToken+"&caseID="+encodeURIComponent(folder)+"&date_string="+encodeURIComponent(dateString) target="_blank") 
+              | #{folder}
+        
+    div(style="max-height: 80vh; overflow: scroll; width: 100%;")
+      table
+        tr
+          th
+          th File Name
+          th(style="padding-right: 60px;") Assigned Case
+          th Assigned Group
+        each file in fileNames
+          tr
+            td 
+              input(
+                type='checkbox', 
+                data-file=file, 
+                data-group=currentFileAssignments[file].group
+                data-case-id=currentFileAssignments[file].caseID
+                style="width: 25px; height: 25px;"
+              )
+            td #{file}
+            td.assigned-case.not-assigned #{currentFileAssignments[file].caseID}
+            td.assigned-group.not-assigned #{currentFileAssignments[file].group}
+
+    script.
+      const labToken = '!{labToken}';
+      const dateString = '!{dateString}';
+      const filePath = '!{filePath}';
+      const fileNames = JSON.parse('!{JSON.stringify(fileNames)}');
+      const currentFileAssignments = JSON.parse('!{JSON.stringify(currentFileAssignments)}');
+
+      function updateAssignGroupButton() {
+        let groupName = $('#group-name').val();
+        let caseID = $('#case-id-select').val();
+
+        if (groupName.trim().length === 0 || caseID.trim().length === 0) {
+          $('#assign-groups').addClass('disabled');
+        } else {
+          $('#assign-groups').removeClass('disabled');
+        }
+      }
+
+      function processNewPrefix(prefix) {
+        $('#group-name').val(prefix);
+        updateAssignGroupButton();
+      }
+
+      function computeGroupNames(files) {
+        if (files.length === 0) {
+          processNewPrefix('');
+          return '';
+        }
+
+        files.sort();
+        let prefix = files[0];
+        for (let i = prefix.length; i > 0; i--) {
+          let candidate = prefix.slice(0, i);
+          if (files.every(f => f.startsWith(candidate))) {
+            processNewPrefix(candidate.trim());
+            return candidate;
+          }
+        }
+
+        processNewPrefix('');
+        return '';
+      }
+
+      function updateSubmitButtonState() {
+        let allGroups = $('input[type="checkbox"]').map(function () {
+          return $(this).data('group');
+        }).toArray();
+
+        let allFiles = $('input[type="checkbox"]').map(function () {
+          return $(this).data('file');
+        }).toArray();
+
+        if (allGroups.filter(g => g.trim().length > 0).length === allFiles.length) {
+          $('#group-case-files').removeClass('disabled');
+        } else {
+          $('#group-case-files').addClass('disabled');
+        }
+      }
+
+      let selectedFiles = [];
+
+      $('input[type="checkbox"]').on('change', function () {
+        selectedFiles = $('input:checked[type="checkbox"]').map(function () {
+          return $(this).data('file'); 
+        }).toArray();
+        
+        if (selectedFiles.length === 0) {
+          $('#assign-groups').addClass('disabled');
+        } else {
+          $('#assign-groups').removeClass('disabled');
+        }
+        
+        computeGroupNames(selectedFiles);
+      });
+
+      $('#group-name').on('change', function () {
+        updateAssignGroupButton();
+      });
+
+      $('#case-id-select').on('change', function () {
+        updateAssignGroupButton();
+      });
+
+      $('#assign-groups').on('click', function () {
+        let groupName = $('#group-name').val();
+        let caseID = $('#case-id-select').val();
+        
+        for (let file of selectedFiles) {
+          $('input[data-file="'+file+'"]').data('group', groupName);
+          $('input[data-file="'+file+'"]').data('case-id', caseID);
+          $('input[data-file="'+file+'"]').parent().parent().find('.assigned-group').html(groupName).removeClass('not-assigned');
+          $('input[data-file="'+file+'"]').parent().parent().find('.assigned-case').html(caseID).removeClass('not-assigned');
+        }
+
+        $('#case-id-select').val('');
+        processNewPrefix('');
+        $('input[type="checkbox"]').prop('checked', false);
+
+        updateSubmitButtonState();
+      });
+
+      $('#group-case-files').on('click', function () {
+        $(this).addClass('disabled');
+
+        let groupsData = $('input[type="checkbox"]').map(function () {
+          return {g: $(this).data('group'), f: $(this).data('file'), c: $(this).data('case-id')};
+        }).toArray();
+
+        let fileGroupings = {};
+        for (let pair of groupsData) {
+          if (!fileGroupings.hasOwnProperty(pair.c)) {
+            fileGroupings[pair.c] = {};
+          }
+          if (!fileGroupings[pair.c].hasOwnProperty(pair.g)) {
+            fileGroupings[pair.c][pair.g] = [];
+          }
+          fileGroupings[pair.c][pair.g].push(pair.f);
+        }
+        console.log({fileGroupings});
+
+        $.post(
+          '/group-case-files',
+          {
+            dateString,
+            filePath,
+            labToken,
+            fileGroupingsStr: JSON.stringify(fileGroupings),
+          },
+          (data) => {
+            //- location.href = data;
+            location.reload();
+          }
+        )
+      })
+
+      console.log({dateString, filePath, fileNames, currentFileAssignments});

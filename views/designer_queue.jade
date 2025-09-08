@@ -1,0 +1,42 @@
+extends layout
+
+block head-content
+    script(src='/javascripts/designers.js')
+
+block content
+  h1= title
+  p Move designed cases to the Export Internal folder and refresh this page.
+  div.submit-button-row
+    button.submit-button.disabled#send-to-qc-button 0 cases ready to send for QC - Click to Submit
+  div.submit-button-row
+    span(style="padding-right: 10px;") Filter by designer: 
+    select
+      each designer in designers
+        option(value=designer) #{designer}
+    
+  div.checklist
+    h3 Checklist
+    div.checkbox-row
+      input.checklist-checkbox(type="checkbox" name="designer-checklist")
+      label I designed
+    div.checkbox-row
+      input.checklist-checkbox(type="checkbox" name="designer-checklist") 
+      label I checked
+
+  div.page
+    div.state-row.title-row
+        div(style="width: 10%") Lab identifier
+        div(style="width: 30%") Case File
+        div(style="width: 10%") Unit Count
+        div(style="width: 30%") Unit Description
+        div(style="width: 15%") Allocated To
+        div(style="width: 5%") Select
+    each case_file in case_files
+        div.state-row(data-allocation=case_file.current_allocation)
+            div(style="width: 10%") #{case_file.case_id}
+            div(style="width: 30%") #{case_file.case_file}
+            div(style="width: 10%") #{case_file.unit_count}
+            div(style="width: 30%") #{case_file.unit_desc}
+            div(style="width: 15%") #{case_file.current_allocation}
+            div(style="width: 5%")
+              input.case-checkbox(type="checkbox", data-case_file_id=case_file.id)

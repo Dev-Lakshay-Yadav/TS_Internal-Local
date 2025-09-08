@@ -1,0 +1,14 @@
+Date: RT-25 APR 2023
+Lab name: KB
+File Path: /Volumes/Expansion/ToothSketch/April 2023/RT-25 APR 2023/KB/EXPORT/04-25-2023.zip
+{
+  err: [Error: ENOENT: no such file or directory, open '/Volumes/Expansion/ToothSketch/April 2023/RT-25 APR 2023/KB/EXPORT/04-25-2023/04-25-2023.xml'] {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/Volumes/Expansion/ToothSketch/April 2023/RT-25 APR 2023/KB/EXPORT/04-25-2023/04-25-2023.xml'
+  },
+  filePath: '/Volumes/Expansion/ToothSketch/April 2023/RT-25 APR 2023/KB/EXPORT/04-25-2023.zip'
+}
+
+// No zip file for each case

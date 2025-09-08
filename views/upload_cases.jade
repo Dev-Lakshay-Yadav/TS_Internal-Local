@@ -1,0 +1,25 @@
+extends layout
+
+block content
+    p
+        | This page will load the cases found under network_drive/Rishabh testing/date_string/Clients
+    Choose date to find cases: &nbsp;
+    //- <input id="selected_date_string" type="text" value="#{dateString}" />
+    select(id="selected_date_string" value=dateString)
+        each folder in baseFolders
+            option(value=folder, selected=dateString === folder) #{folder}
+    <button id="find_cases_for_date">Find cases for date</button>
+    script.
+        document.addEventListener("DOMContentLoaded", function(event) {
+            $('#find_cases_for_date').on('click', function () {
+                location.href = encodeURI(location.origin + '/uploader?date_string=' + $('#selected_date_string').val());
+            });
+        });
+    ul
+        each client in Object.keys(clientCases)
+            li 
+                a(href=`/group-case-files/?lab=${client}&date_string=${dateString}`) #{client}
+                ul
+                    each caseID in clientCases[client]
+                        li 
+                            a(href=`/upload_case/?lab=${client}&caseID=${caseID}&date_string=${dateString}` target="_blank") #{caseID}

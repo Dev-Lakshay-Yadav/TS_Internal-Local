@@ -1,0 +1,20 @@
+# Dependency directories
+node_modules/
+Shared\ Folder/
+failing\ cases/
+
+# Optional npm cache directory
+.npm
+
+# dotenv environment variables file
+.env
+
+.DS_Store
+downloader_logs
+
+
+
+# lakshay changes
+**/token.json
+**/credentials.json 
+/start.txt

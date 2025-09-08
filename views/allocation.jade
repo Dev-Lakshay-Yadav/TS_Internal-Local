@@ -1,0 +1,59 @@
+extends layout
+
+block head-content
+    script(src='/javascripts/allocation.js')
+
+block content
+  h1= title
+  p Please assign designers to the cases listed below.
+  div.submit-button-row
+    button.submit-button.disabled#allocation-button 0 cases ready to allocate - Select a designer
+
+  div.page
+    div.state-row.title-row
+      div(style="width: 25%")
+        select(placeholder="Select a designer", value="")
+          option(selected=true, value="") Select a designer
+          option(value="Ramesh") Ramesh
+          option(value="Sam") Sam
+          option(value="Peter") Peter
+          option(value="Rahul Savita") Rahul Savita
+          option(value="Ghanshyam Sharma") Ghanshyam Sharma
+          option(value="Amit Singh") Amit Singh
+          option(value="Uday Bhan Atri") Uday Bhan Atri
+          option(value="Ankit Rawat") Ankit Rawat
+          option(value="Abhishek Kumar") Abhishek Kumar
+          option(value="Ranu") Ranu
+          option(value="Md. Ashim Hashmi") Md. Ashim Hashmi
+          option(value="Anjali Gera") Anjali Gera
+          option(value="Shashikant") Shashikant
+          option(value="Nitin Rana") Nitin Rana
+          option(value="Tarun Kumar") Tarun Kumar
+          option(value="Ritesh Savita") Ritesh Savita
+          option(value="Gaurav Chaudhary") Gaurav Chaudhary
+          option(value="Himanshu Goswami") Himanshu Goswami
+          option(value="Ankit Goswami") Ankit Goswami
+    table
+      tr.state-row.title-row
+        th(style="width: 15%") Lab identifier
+        th(style="width: 20%") Case Name
+        th(style="width: 20%") Case File
+        th(style="width: 5%") Unit Count
+        th(style="width: 30%") Unit Description
+        th(style="width: 13%") ↓ Allocate
+      each case_file in case_files
+        tr.state-row
+          td(style="width: 15%") #{case_file.case_id}
+          td(style="width: 20%") #{case_file.case_owner}
+          td(style="width: 20%") #{case_file.case_file}
+          td(style="width: 5%") #{case_file.unit_count}
+          td(style="width: 30%") #{case_file.unit_desc}
+          td(style="width: 13%")
+            input.case-checkbox(
+              type="checkbox", 
+              data-case_file_id=case_file.id,
+              data-case_owner=case_file.case_owner,
+              data-case_file=case_file.case_file, 
+              data-case_id=case_file.case_id,
+              data-case_creation_time_ms=case_file.creation_time_ms
+            )
