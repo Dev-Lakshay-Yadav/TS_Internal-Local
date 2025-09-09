@@ -80,7 +80,7 @@ function processCasesBehindLock(client) {
                 continue;
             }
 
-            console.log(caseDetails);
+            console.log(caseDetails,'checkpoint A');
 
             let caseId = caseDetails['case_id'];
             // if (!caseId.startsWith('GH')) {
@@ -90,9 +90,13 @@ function processCasesBehindLock(client) {
             let creationTimeMs = caseDetails['creation_time_ms'];
 
             ensureLabFolderExists(caseId, creationTimeMs);
+            console.log('checkpoint B');
             ensureCaseFolderExists(caseId, 'IMPORT');
+            console.log('checkpoint C');
             ensureCaseFolderExists(caseId, 'EXPORT - External');
+            console.log('checkpoint D');
             ensureCaseFolderExists(caseId, 'Uploads');
+            console.log('checkpoint E');
 
             // Needs to be a promise all
             caseProcessingPromises.push(
@@ -106,8 +110,10 @@ function processCasesBehindLock(client) {
             last_case_ts = parseInt(creationTimeMs);
         }
 
+        console.log('checkpoint F');
+
         Promise.all(caseProcessingPromises).then((resolutions) => {
-            console.log(resolutions);
+            console.log(resolutions,"Checkpoint G");
             console.log('Case files processed successfully');
             if (last_case_ts != null) {
                 axios.post(
@@ -150,6 +156,7 @@ function processCase(client, folderId, caseId, caseDetails) {
 }
 function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject) {
     let services = JSON.parse(caseDetails.details_json).services;
+    console.log(services,'Checkpoint I')
     let hasFilledOrderForm = Object.keys(services).filter(s => [
         'crownAndBridge',
         'implant',

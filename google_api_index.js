@@ -365,7 +365,7 @@ function unzipCaseFiles(filePath, fileName, caseId) {
                     current_allocation: 'None',
                     case_units,
                 };
-                console.log(toLog);
+                console.log(toLog,'logged to log');
                 axios.post(
                     'http://www.prf.nll.mybluehost.me/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
                     qs.stringify(toLog)
