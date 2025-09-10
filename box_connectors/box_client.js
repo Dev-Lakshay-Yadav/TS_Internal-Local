@@ -7,8 +7,8 @@ let access_token = {value: '', expires_ts: 0};
 let client;
 
 const sdk = new BoxSDK({
-    clientID: '2kzp5rjdnwyvqnjoecwv606cb7xk9xju',
-    clientSecret: 'd57GMWW3YMAplzSq960J32qcRv5epppW'
+    clientID: 'nvsyh9wt882bklxumxuk95j4tmv3d6gr',
+    clientSecret: 'zpPs7zMFNxx9HSy35iQhO7OL3xaR3aO2'
 });
 
 function getAccessToken(

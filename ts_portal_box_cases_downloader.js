@@ -36,7 +36,6 @@ function processCases(client) {
         method: 'get',
         url: CONSTANTS_GET_ENDPOINT + '?name=case_downloader_mutex_ts',
     }).then(response => {
-        console.log(response.data);
         if (response.data['name'] !== 'case_downloader_mutex_ts') {
             return;
         }
@@ -52,8 +51,10 @@ function processCases(client) {
             CONSTANTS_POST_ENDPOINT,
             qs.stringify({ name: 'case_downloader_mutex_ts', value: now }),
         ).then(data => {
-            console.log({ data: data.data, message: "Update mutex value" });
+            // console.log({ data: data.data, message: "Update mutex value" });
+            console.log("process cases behind lock called")
             processCasesBehindLock(client);
+            console.log("process cases after lock executed success")
             try {
                 processRedesigns();
             } catch (ex) {
@@ -73,7 +74,7 @@ function processCasesBehindLock(client) {
     }).then(response => {
         let last_case_ts = null;
         let caseProcessingPromises = [];
-        console.log(response.data.cases);
+        console.log(response.data.cases,"response.data.cases line 77");
         for(let caseDetails of response.data.cases) {
             let folderId = caseDetails.box_folder_id;
             if (folderId.length === 0) {
@@ -90,15 +91,12 @@ function processCasesBehindLock(client) {
             let creationTimeMs = caseDetails['creation_time_ms'];
 
             ensureLabFolderExists(caseId, creationTimeMs);
-            console.log('checkpoint B');
             ensureCaseFolderExists(caseId, 'IMPORT');
-            console.log('checkpoint C');
             ensureCaseFolderExists(caseId, 'EXPORT - External');
-            console.log('checkpoint D');
             ensureCaseFolderExists(caseId, 'Uploads');
-            console.log('checkpoint E');
 
             // Needs to be a promise all
+            console.log("processCase called and caseDetails is : ",caseDetails)
             caseProcessingPromises.push(
                 processCase(client, folderId, caseId, caseDetails).catch(err => {
                     console.log({
@@ -146,6 +144,7 @@ function processCasesBehindLock(client) {
  * @param client Box API client.
  */
 function processCase(client, folderId, caseId, caseDetails) {
+    console.log("insideprocess casea nd now call prcessCaseImpl")
     return new Promise((resolve, reject) => {
         try {
             processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject);
@@ -157,6 +156,7 @@ function processCase(client, folderId, caseId, caseDetails) {
 function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject) {
     let services = JSON.parse(caseDetails.details_json).services;
     console.log(services,'Checkpoint I')
+    console.log("processCaseImpl called and caseDetails is : ",caseDetails)
     let hasFilledOrderForm = Object.keys(services).filter(s => [
         'crownAndBridge',
         'implant',
@@ -165,6 +165,9 @@ function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject)
         'digital-model',
         'complete-denture',
     ].includes(s)).length === 0;
+
+    console.log("filled order form value line 171 : ",hasFilledOrderForm)
+
 
     client.folders.getItems(
         folderId,
@@ -175,6 +178,13 @@ function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject)
             limit: 100,
         }
     ).then(items => {
+        console.log("inside function : ",folderId)
+        console.log("Box folder contents:", items.entries.map(e => ({
+            id: e.id,
+            name: e.name,
+            type: e.type,
+            status: e.item_status
+        })));
         let files = items.entries.filter(e => e.type != 'folder' && e.item_status == 'active');
         if (files.length == 0) {
             reject('Could not find files for '+caseId+'.');
@@ -225,128 +235,6 @@ function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject)
 
             return;
 
-            nonZipFiles = files.filter(f => !f.name.endsWith('.zip'));
-            if (hasFilledOrderForm && nonZipFiles.length > 0) {
-                let toLog = {
-                    case_id: caseId,
-                    case_file: 'Check all files for case',
-                    queue_status: 'Needs prep work',
-                    current_allocation: 'None',
-                    case_units: [],
-                };
-                console.log(toLog);
-                axios.post(
-                    'https://www.toothsketch.com/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
-                    qs.stringify(toLog)
-                ).then(response => {
-                    console.log(response.data);
-                    resolve(caseId + ' needs more prep work');
-                });
-                return;
-            }
-            if (hasFilledOrderForm && nonZipFiles.length == 0) {
-                // we've already confirmed that this case only has zip files
-                if (Object.keys(services) == ['digital-model']) {
-                    let axiosPromises = files.map(file => {
-                        let toLog = {
-                            case_id: caseId,
-                            case_file: file.name.split('.').slice(0, -1).join('.'),
-                            queue_status: 'Ready for design',
-                            current_allocation: 'None',
-                            case_units: [{
-                                tooth_number: 0,
-                                abutment_kit_id: null,
-                                anatomical: false,
-                                post_and_core: false,
-                                cache_tooth_type_class: '',
-                                unit_type: 'Digital Model',
-                            }],
-                        };
-                        console.log(toLog);
-                        return axios.post(
-                            'https://www.toothsketch.com/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
-                            qs.stringify(toLog),
-                        );
-                    });
-                    Promise.all(axiosPromises).then(v => resolve(v)).catch(e => reject(e));
-                } else {
-                    let unzipPromises = files.map(file => unzipCaseFiles(
-                        getFilePath(caseId, file.name, 'IMPORT'),
-                        file.name,
-                        caseId,
-                    ));
-                    Promise.all(unzipPromises).then(v => resolve(v)).catch(e => reject(e));
-                }
-            } else {
-                // resolve('Need to process TS Portal case ' + caseId);
-                console.log(services);
-                let case_units = [];
-                for (const service of Object.keys(services)) {
-                    const serviceDetails = services[service];
-                    let toothNumbers = {};
-                    if (
-                        service === 'crownAndBridge' ||
-                        service === 'implant'
-                    ) {
-                        for (const instance of serviceDetails.instanceDetails) {
-                            for (const toothNumber of instance.toothNumbers) {
-                                if (!toothNumbers.hasOwnProperty(toothNumber)) {
-                                    toothNumbers[toothNumber] = 1;
-                                    case_units.push({
-                                        tooth_number: toothNumber,
-                                        abutment_kit_id: null,
-                                        anatomical: false,
-                                        post_and_core: false,
-                                        cache_tooth_type_class: service,
-                                        unit_type: 'Tooth',
-                                    });
-                                }
-                            }
-                        }
-                    }
-                    if (service === 'smileDesign') {
-                        for (const toothNumber of serviceDetails.toothNumbers) {
-                            case_units.push({
-                                tooth_number: toothNumber,
-                                abutment_kit_id: null,
-                                anatomical: false,
-                                post_and_core: false,
-                                cache_tooth_type_class: service,
-                                unit_type: 'Tooth',
-                            });
-                        }
-                    }
-                    if (service === 'complete-denture') {
-                        for (const toothNumber of serviceDetails.teethReplaced) {
-                            case_units.push({
-                                tooth_number: toothNumber,
-                                abutment_kit_id: null,
-                                anatomical: false,
-                                post_and_core: false,
-                                cache_tooth_type_class: service,
-                                unit_type: 'Tooth',
-                            });
-                        }
-                    }
-                }
-                let toLog = {
-                    case_id: caseId,
-                    case_file: 'TS Portal case, see all files',
-                    queue_status: 'Ready for design',
-                    current_allocation: 'None',
-                    case_units,
-                };
-                console.log(toLog);
-                axios.post(
-                    'https://www.toothsketch.com/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
-                    qs.stringify(toLog)
-                ).then(response => {
-                    resolve({
-                        caseType: 'TS Portal',
-                        responseData: response.data
-                    });
-                });
-            }
         }).catch(err => reject(err));
 
     });
