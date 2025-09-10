@@ -51,10 +51,8 @@ function processCases(client) {
             CONSTANTS_POST_ENDPOINT,
             qs.stringify({ name: 'case_downloader_mutex_ts', value: now }),
         ).then(data => {
-            // console.log({ data: data.data, message: "Update mutex value" });
-            console.log("process cases behind lock called")
+            console.log({ data: data.data, message: "Update mutex value" });
             processCasesBehindLock(client);
-            console.log("process cases after lock executed success")
             try {
                 processRedesigns();
             } catch (ex) {
@@ -74,14 +72,12 @@ function processCasesBehindLock(client) {
     }).then(response => {
         let last_case_ts = null;
         let caseProcessingPromises = [];
-        console.log(response.data.cases,"response.data.cases line 77");
         for(let caseDetails of response.data.cases) {
             let folderId = caseDetails.box_folder_id;
             if (folderId.length === 0) {
                 continue;
             }
 
-            console.log(caseDetails,'checkpoint A');
 
             let caseId = caseDetails['case_id'];
             // if (!caseId.startsWith('GH')) {
@@ -96,7 +92,6 @@ function processCasesBehindLock(client) {
             ensureCaseFolderExists(caseId, 'Uploads');
 
             // Needs to be a promise all
-            console.log("processCase called and caseDetails is : ",caseDetails)
             caseProcessingPromises.push(
                 processCase(client, folderId, caseId, caseDetails).catch(err => {
                     console.log({
@@ -108,11 +103,8 @@ function processCasesBehindLock(client) {
             last_case_ts = parseInt(creationTimeMs);
         }
 
-        console.log('checkpoint F');
 
         Promise.all(caseProcessingPromises).then((resolutions) => {
-            console.log(resolutions,"Checkpoint G");
-            console.log('Case files processed successfully');
             if (last_case_ts != null) {
                 axios.post(
                     CONSTANTS_POST_ENDPOINT,
