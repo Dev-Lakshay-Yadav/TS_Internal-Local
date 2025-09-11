@@ -4,7 +4,6 @@ const axios = require('axios');
 const qs = require('qs');
 const xml_to_json = require('xml-js');
 const {
-    getCurrentDateString,
     getCurrentTimeString,
 } = require('./ts_datetime.js');
 const {
@@ -16,11 +15,7 @@ const {
     ensureLabFolderExists,
     ensureCaseFolderExists,
     getFilePath,
-    checkFileExists,
 } = require('./ts_folder_structure.js');
-const {
-    generatePDF
-} = require('./ts_pdf_maker.js');
 const {
     generateCasePDF,
 } = require('./ts_case_details_pdf.js');
@@ -80,9 +75,6 @@ function processCasesBehindLock(client) {
 
 
             let caseId = caseDetails['case_id'];
-            // if (!caseId.startsWith('GH')) {
-            //     continue;
-            // }
 
             let creationTimeMs = caseDetails['creation_time_ms'];
 
@@ -115,18 +107,10 @@ function processCasesBehindLock(client) {
                 });
             } else {
                 console.log('No more cases for now, going to sleep for 1 minute');
-                /*setTimeout(function() {
-                    console.log("triggering case processing after sleep");
-                    getClient(client => processCases(client));
-                }, 1 * 60 * 1000);*/
             }
         }).catch((error) => {
             console.log(error);
             console.log('An error occurred, will retry in a minute');
-            /*setTimeout(function() {
-                console.log("triggering case processing after error");
-                getClient(client => processCases(client));
-            }, 1 * 60 * 1000);*/
         });
     });
 }
@@ -136,7 +120,6 @@ function processCasesBehindLock(client) {
  * @param client Box API client.
  */
 function processCase(client, folderId, caseId, caseDetails) {
-    console.log("insideprocess casea nd now call prcessCaseImpl")
     return new Promise((resolve, reject) => {
         try {
             processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject);
@@ -145,9 +128,9 @@ function processCase(client, folderId, caseId, caseDetails) {
         }
     });
 }
+
 function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject) {
     let services = JSON.parse(caseDetails.details_json).services;
-    console.log(services,'Checkpoint I')
     console.log("processCaseImpl called and caseDetails is : ",caseDetails)
     let hasFilledOrderForm = Object.keys(services).filter(s => [
         'crownAndBridge',
@@ -158,9 +141,6 @@ function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject)
         'complete-denture',
     ].includes(s)).length === 0;
 
-    console.log("filled order form value line 171 : ",hasFilledOrderForm)
-
-
     client.folders.getItems(
         folderId,
         {
@@ -170,13 +150,7 @@ function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject)
             limit: 100,
         }
     ).then(items => {
-        console.log("inside function : ",folderId)
-        console.log("Box folder contents:", items.entries.map(e => ({
-            id: e.id,
-            name: e.name,
-            type: e.type,
-            status: e.item_status
-        })));
+        console.log("inside function line 153")
         let files = items.entries.filter(e => e.type != 'folder' && e.item_status == 'active');
         if (files.length == 0) {
             reject('Could not find files for '+caseId+'.');
@@ -236,11 +210,6 @@ function downloadFile(client, fileId, fileName, caseId) {
     console.log(`Downloading ${fileName} (${fileId})`);
     return new Promise((resolve, reject) => {
         client.files.getReadStream(fileId, null, (error, stream) => {
-            // if (checkFileExists(caseId, fileName, 'IMPORT')) {
-            //     // I should probably be checking if I have the file properly recorded
-            //     reject(`${caseId} already has the file ${fileName} downloaded.`);
-            //     return;
-            // }
 
             if (error) {
                 reject('Box API readstream error for '+caseId);
