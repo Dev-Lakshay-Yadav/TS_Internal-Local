@@ -149,7 +149,7 @@ function processCaseImpl(auth, parentId, caseId, caseDetails, resolve, reject) {
                 };
                 console.log(toLog);
                 axios.post(
-                    'http://www.prf.nll.mybluehost.me/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
+                    UPDATING_CASEFILES_AND_CASEUNITS,
                     qs.stringify(toLog)
                 ).then(response => {
                     console.log(response.data);
@@ -223,7 +223,7 @@ function processCaseImpl(auth, parentId, caseId, caseDetails, resolve, reject) {
                     };
                     console.log(toLog);
                     axios.post(
-                        'http://www.prf.nll.mybluehost.me/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
+                        UPDATING_CASEFILES_AND_CASEUNITS,
                         qs.stringify(toLog)
                     ).then(response => {
                         resolve({
@@ -316,7 +316,7 @@ function unzipCaseFiles(filePath, fileName, caseId) {
                             };
                             console.log(toLog);
                             axios.post(
-                                'http://www.prf.nll.mybluehost.me/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
+                                UPDATING_CASEFILES_AND_CASEUNITS,
                                 qs.stringify(toLog)
                             ).then(response => {
                                 resolve(response.data);
@@ -333,7 +333,7 @@ function unzipCaseFiles(filePath, fileName, caseId) {
     }).catch(err => {
         console.log({err, caseId, filePath, fileName});
         axios.post(
-            'http://www.prf.nll.mybluehost.me/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
+            UPDATING_CASEFILES_AND_CASEUNITS,
             qs.stringify({
                 case_id: caseId,
                 case_file: 'An error occurred, check all files for case',

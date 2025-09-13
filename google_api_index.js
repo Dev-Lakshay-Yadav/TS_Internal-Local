@@ -180,7 +180,7 @@ function listFiles(auth, parentId, caseId, caseDetails) {
                             };
                             console.log(toLog);
                             axios.post(
-                                'http://www.prf.nll.mybluehost.me/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
+                                UPDATING_CASEFILES_AND_CASEUNITS,
                                 qs.stringify(toLog)
                             ).then(response => {
                                 console.log(response.data);
@@ -284,7 +284,7 @@ function downloadFiles(drive, fileId, fileName, caseId, cb) {
                                                     };
                                                     console.log(toLog);
                                                     axios.post(
-                                                        'http://www.prf.nll.mybluehost.me/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
+                                                        UPDATING_CASEFILES_AND_CASEUNITS,
                                                         qs.stringify(toLog)
                                                     ).then(response => {
                                                         console.log(response.data);
@@ -367,7 +367,7 @@ function unzipCaseFiles(filePath, fileName, caseId) {
                 };
                 console.log(toLog,'logged to log');
                 axios.post(
-                    'http://www.prf.nll.mybluehost.me/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
+                    UPDATING_CASEFILES_AND_CASEUNITS,
                     qs.stringify(toLog)
                 ).then(response => {
                     console.log(response.data);

@@ -73,7 +73,6 @@ function processCasesBehindLock(client) {
                 continue;
             }
 
-
             let caseId = caseDetails['case_id'];
 
             let creationTimeMs = caseDetails['creation_time_ms'];
@@ -187,10 +186,13 @@ function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject)
                     case_units: [],
                 };
                 console.log(`Intentionally not unzipping ${caseId}`);
-                axios.post(
-                    'https://www.toothsketch.com/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
-                    qs.stringify(toLog)
-                ).then(response => {
+                console.log(toLog,'asddd')
+                const response = axios.post(
+                    UPDATING_CASEFILES_AND_CASEUNITS,
+                    toLog,
+                    { headers: { "Content-Type": "application/json" } }
+                  ).then(response => {
+                    console.log("api triggered")
                     console.log(response.data);
                     resolve(caseId + ' finished downloading and creating caseDetails');
                 });
@@ -198,7 +200,6 @@ function processCaseImpl(client, folderId, caseId, caseDetails, resolve, reject)
                 console.log("Failed to generate CaseDetails.pdf for " + caseId);
                 resolve([`Resolving ${caseId} with eror`, e]);
             }
-
             return;
 
         }).catch(err => reject(err));
@@ -294,7 +295,7 @@ function unzipCaseFiles(filePath, fileName, caseId) {
                             };
                             console.log(toLog);
                             axios.post(
-                                'https://www.toothsketch.com/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
+                                UPDATING_CASEFILES_AND_CASEUNITS,
                                 qs.stringify(toLog)
                             ).then(response => {
                                 resolve(response.data);
@@ -311,7 +312,7 @@ function unzipCaseFiles(filePath, fileName, caseId) {
     }).catch(err => {
         console.log({err, caseId, filePath, fileName});
         axios.post(
-            'https://www.toothsketch.com/wp-json/my-route/create-case-file/?test_key=0Wbjj49mZtRZ5YtcShGaIxEtezdZi2eios4w0TDcxPjRC',
+            UPDATING_CASEFILES_AND_CASEUNITS,
             qs.stringify({
                 case_id: caseId,
                 case_file: 'An error occurred, check all files for case',
