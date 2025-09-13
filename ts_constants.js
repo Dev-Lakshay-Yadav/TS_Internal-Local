@@ -7,18 +7,13 @@
 // }
 
 // Lakshay testing
+const BASE_URL = "http://localhost:8080/auth/localUploader";
 
 module.exports = {
-  INCOMING_CASES_QUERY:
-    "http://localhost:8080/auth/localUploader/all-cases/?test_key=0Wbjj49mZtRZ5YtcShGaIb10JbdNxEtezdZi2eios4w0TDcxPjRC",
-  INCOMING_REDESIGNS_QUERY:
-    "http://localhost:8080/auth/localUploader/redesign-cases/?test_key=0Wbjj49mZtRZ5YtcShGaIb10JbdNxEtezdZi2eios4w0TDcxPjRC",
-  UPDATING_CASEFILES_AND_CASEUNITS:
-    "http://localhost:8080/auth/localUploader/add-casefiles",
-  UPDATE_REDESIGN_STATUS_ENDPOINT:
-    "http://localhost:8080/auth/localUploader/update-redesign-status",
-  CONSTANTS_POST_ENDPOINT:
-    "http://localhost:8080/auth/localUploader/set-constants",
-  CONSTANTS_GET_ENDPOINT:
-    "http://localhost:8080/auth/localUploader/get-constants",
+  INCOMING_CASES_QUERY: `${BASE_URL}/all-cases/?test_key=0Wbjj49mZtRZ5YtcShGaIb10JbdNxEtezdZi2eios4w0TDcxPjRC`,
+  INCOMING_REDESIGNS_QUERY: `${BASE_URL}/redesign-cases/?test_key=0Wbjj49mZtRZ5YtcShGaIb10JbdNxEtezdZi2eios4w0TDcxPjRC`,
+  UPDATING_CASEFILES_AND_CASEUNITS: `${BASE_URL}/add-casefiles`,
+  UPDATE_REDESIGN_STATUS_ENDPOINT: `${BASE_URL}/update-redesign-status`,
+  CONSTANTS_POST_ENDPOINT: `${BASE_URL}/set-constants`,
+  CONSTANTS_GET_ENDPOINT: `${BASE_URL}/get-constants`,
 };
