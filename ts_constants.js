@@ -7,9 +7,8 @@
 // }
 
 // Lakshay testing
-const BASE_URL = "https://ts-gcp-app-687220600374.us-central1.run.app/api/localUploader";
-// const BASE_URL = "http://localhost:8080/api/localUploader";
-
+// const BASE_URL = "https://ts-gcp-app-687220600374.us-central1.run.app/api/localUploader";
+const BASE_URL = "http://localhost:8080/api/localUploader";
 
 module.exports = {
   INCOMING_CASES_QUERY: `${BASE_URL}/all-cases/0Wbjj49mZtRZ5YtcShGaIb10JbdNxEtezdZi2eios4w0TDcxPjRC`,
@@ -17,5 +16,5 @@ module.exports = {
   UPDATING_CASEFILES_AND_CASEUNITS: `${BASE_URL}/add-casefiles`,
   UPDATE_REDESIGN_STATUS_ENDPOINT: `${BASE_URL}/update-redesign-status`,
   CONSTANTS_POST_ENDPOINT: `${BASE_URL}/set-constants`,
-  CONSTANTS_GET_ENDPOINT: `${BASE_URL}/get-constants`,
+  CONSTANTS_GET_ENDPOINT: `${BASE_URL}/get-constants/`,
 };

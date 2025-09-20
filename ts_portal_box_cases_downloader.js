@@ -29,7 +29,7 @@ const {
 function processCases(client) {
     axios({
         method: 'get',
-        url: CONSTANTS_GET_ENDPOINT + '?name=case_downloader_mutex_ts',
+        url: CONSTANTS_GET_ENDPOINT + 'case_downloader_mutex_ts',
     }).then(response => {
         if (response.data['name'] !== 'case_downloader_mutex_ts') {
             return;
